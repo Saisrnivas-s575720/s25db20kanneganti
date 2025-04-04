@@ -1,0 +1,27 @@
+extends layout
+
+block content
+  h1 Welcome to the Homepage
+
+  p This is the index page for our Express server with Pug templates.
+
+  button(type="button", class="btn btn-primary", onclick="faster()") Sample Button
+
+  // Part 4 – Div for interaction
+  div#faster add in extra
+
+  // Part 6 – Link to journals page
+  p
+    a(href="/journals") → View Journal Results
+
+  
+  script.
+    let value = 1;
+    let amt = 2;
+
+    function faster() {
+      amt *= 2;
+      value += amt;
+      document.getElementById("faster").textContent = `Faster ${value} times ${amt}`;
+    }
+

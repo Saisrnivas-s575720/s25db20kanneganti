@@ -1,0 +1,22 @@
+extends layout
+
+block content
+  h1 A Random Item
+
+  -
+    var image_names = ["img1.jpeg", "img2.jpeg", "img3.jpeg", "img4.jpeg", "img5.jpeg"];
+    var results = [];
+    for (let i = 0; i < 3; i++) {
+      let index = Math.floor(Math.random() * image_names.length);
+      results.push(image_names[index]);
+    }
+
+ 
+  each img in results
+    img(src=`/images/${img}`, alt=img, width="300", height="300", class="m-2 border rounded")
+    button(type="button", class="btn btn-primary m-2", onclick=`buy(${results.indexOf(img)})`) Buy
+
+  script.
+    function buy(index) {
+      alert("You purchased item " + index);
+    }

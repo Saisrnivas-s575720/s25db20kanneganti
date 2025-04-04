@@ -1,0 +1,29 @@
+extends layout
+
+block content
+  h1 Grid Display
+
+
+  p You requested #{query && query.rows} rows and #{query && query.cols} columns.
+
+  -
+    var rows = Number(query?.rows || 0);
+    var cols = Number(query?.cols || 0);
+
+  - if (!Number.isInteger(rows) || !Number.isInteger(cols))
+    p Please enter valid integer values for both rows and columns.
+
+  - else if (rows < 3 || rows > 13)
+    p Row value #{rows} is out of range (3–13).
+
+  - else if (cols < 3 || cols > 13)
+    p Column value #{cols} is out of range (3–13).
+
+  - else
+    table#outer.table.table-bordered
+      - for (let i = 0; i < rows; i++) {
+        tr
+          - for (let j = 0; j < cols; j++) {
+            td #{i - j}
+          - }
+      - }

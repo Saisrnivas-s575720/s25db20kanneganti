@@ -1,0 +1,22 @@
+{
+  "name": "s25wb20kanneganti",
+  "version": "1.0.0",
+  "description": "Express server with Pug by Kanneganti",
+  "main": "bin/www",
+  "scripts": {
+    "start": "node ./bin/www"
+  },
+  "author": "Kanneganti",
+  "license": "MIT",
+  "dependencies": {
+    "cookie-parser": "^1.4.7",
+    "debug": "^4.4.0",
+    "dotenv": "^16.4.7",
+    "express": "^4.21.2",
+    "http-errors": "^2.0.0",
+    "mongodb": "^6.15.0",
+    "mongoose": "^8.13.2",
+    "morgan": "^1.10.0",
+    "pug": "^3.0.3"
+  }
+}

@@ -1,4 +1,4 @@
-const Journal = require('../models/journal');
+const Journal = require('../models/journal');  // Import the Journal model only once
 
 // List all Journals (JSON)
 exports.journal_list = async function (req, res) {
@@ -10,19 +10,30 @@ exports.journal_list = async function (req, res) {
   }
 };
 
-// Create Journal (POST)
+// Handle Journal creation on POST.
 exports.journal_create_post = async function (req, res) {
-  try {
-    const journal = new Journal({
-      title: req.body.title,
-      content: req.body.content,
-      author: req.body.author
-    });
+  console.log(req.body);  // Log the incoming data to check the body of the request
 
-    const result = await journal.save();
-    res.status(201).send(result); // 201 Created
+  // Ensure the required fields are present in the body
+  if (!req.body.title || !req.body.content || !req.body.author) {
+    return res.status(400).send({ error: "Missing required fields" });
+  }
+
+  // Create a new Journal document
+  let document = new Journal({
+    title: req.body.title,
+    content: req.body.content,
+    author: req.body.author
+  });
+
+  try {
+    // Save the new journal document to the database
+    let result = await document.save();
+    // Return the saved document as the response
+    res.status(201).send(result);  // Status 201 indicates successful creation
   } catch (err) {
-    res.status(500).send({ error: err.message });
+    // Catch any errors during the saving process and respond with a 500 status
+    res.status(500).send({ error: err.message });  // Send error message as JSON
   }
 };
 

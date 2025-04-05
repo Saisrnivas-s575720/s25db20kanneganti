@@ -39,7 +39,8 @@ async function recreateDB() {
 mongoose.connect(connectionString)
   .then(async () => {
     console.log('✅ Connection to MongoDB Atlas succeeded!');
-    // await recreateDB(); // Uncomment this to seed ONCE
+    // Uncomment to seed once
+    // await recreateDB();
   })
   .catch(err => {
     console.error('❌ MongoDB connection error:', err);
@@ -51,7 +52,7 @@ const indexRouter = require('./routes/index');
 const journalsRouter = require('./routes/journals');
 const gridRouter = require('./routes/grid');
 const pickRouter = require('./routes/pick');
-const resourceRouter = require('./routes/resource');
+const resourceRouter = require('./routes/resource');  // DO NOT destructure!
 
 // App Initialization
 const app = express();
@@ -72,13 +73,12 @@ app.use('/', indexRouter);
 app.use('/journals', journalsRouter);
 app.use('/grid', gridRouter);
 app.use('/pick', pickRouter);
-app.use('/resource', resourceRouter);
-
+app.use('/resource', resourceRouter);  // This must be the actual router!
 
 // 🔍 Debug unmatched routes before 404
 app.all('*', (req, res, next) => {
-  console.log(`🛑 Unmatched Request: ${req.method} ${req.originalUrl}`);
-  next(createError(404));
+  console.log(`🛑 Unmatched Request: ${req.method} ${req.originalUrl}`);  // Debugging log
+  next(createError(404));  // Trigger the 404 handler
 });
 
 // Error Handler

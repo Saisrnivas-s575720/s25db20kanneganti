@@ -1,18 +1,22 @@
-var express = require('express');
-var router = express.Router();
+const express = require('express');
+const router = express.Router();
+const journal_controller = require('../controllers/journal');
+const api_controller = require('../controllers/api');
 
-// Controllers
-var api_controller = require('../controllers/api');
-var costume_controller = require('../controllers/costume');
-
-/// API ROUTE ///
+// API base test endpoint
 router.get('/', api_controller.api);
 
-/// COSTUME ROUTES ///
-router.post('/costumes', costume_controller.costume_create_post);
-router.delete('/costumes/:id', costume_controller.costume_delete);
-router.put('/costumes/:id', costume_controller.costume_update_put);
-router.get('/costumes/:id', costume_controller.costume_detail);
-router.get('/costumes', costume_controller.costume_list);
+// JOURNAL routes
+router.get('/journals', journal_controller.journal_list);
+router.get('/journals/:id', journal_controller.journal_detail);
+
+// ✅ POST request to create new Journal
+router.post('/journals', (req, res, next) => {
+  console.log("✅ Received POST to /resource/journals");
+  next();
+}, journal_controller.journal_create_post);
+
+router.put('/journals/:id', journal_controller.journal_update_put);
+router.delete('/journals/:id', journal_controller.journal_delete);
 
 module.exports = router;

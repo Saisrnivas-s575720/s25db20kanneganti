@@ -33,6 +33,25 @@ exports.costume_create_post = async function(req, res) {
     res.status(500).send(`Error creating costume: ${err}`);
   }
 };
+exports.costume_view_all_Page = async function(req, res) {
+    try{
+    theCostumes = await Costume.find();
+    res.render('costumes', { title: 'Costume Search Results', results: theCostumes });
+    }
+    catch(err){
+    res.status(500);
+    res.send(`{"error": ${err}}`);
+    }
+   };
+   var express = require('express');
+var router = express.Router();
+const costume_controller = require('../controllers/costume');
+
+// Page that displays all costumes
+router.get('/', costume_controller.costume_view_all_Page);
+
+module.exports = router;
+
 
 // Delete a Costume by ID
 exports.costume_delete = async function(req, res) {

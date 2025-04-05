@@ -1,0 +1,16 @@
+extends layout
+
+block content
+  h1= title
+  form(action="/resource/journals" method="POST")
+    .mb-3
+      label(for="title") Title
+      input.form-control(type="text", name="title", required=true)
+    .mb-3
+      label(for="content") Content
+      textarea.form-control(name="content", rows="5", required=true)
+    .mb-3
+      label(for="author") Author
+      input.form-control(type="text", name="author", required=true)
+    button.btn.btn-primary(type="submit") Submit
+

@@ -4,7 +4,7 @@ const express = require('express');
 const path = require('path');
 const cookieParser = require('cookie-parser');
 const logger = require('morgan');
-require('dotenv').config(); // Load environment variables
+require('dotenv').config();
 
 // MongoDB + Mongoose Setup
 const mongoose = require('mongoose');
@@ -17,31 +17,29 @@ if (!connectionString) {
 
 console.log("🔌 Attempting DB connection to:", connectionString);
 
-// Load Model
-const Costume = require('./models/costume');
+// Load Journal Model
+const Journal = require('./models/journal');
 
 // Seed Data (optional)
 async function recreateDB() {
-  await Costume.deleteMany();
+  await Journal.deleteMany();
 
-  const costume1 = new Costume({ costume_type: 'Vampire', size: 'L', cost: 25 });
-  const costume2 = new Costume({ costume_type: 'Witch', size: 'M', cost: 20 });
-  const costume3 = new Costume({ costume_type: 'Pirate', size: 'S', cost: 15 });
+  const journal1 = new Journal({ title: 'Day 1', content: 'Started my new journal app!', author: 'srinivas' });
+  const journal2 = new Journal({ title: 'Day 2', content: 'Learning MongoDB and Express', author: 'srinivas' });
+  const journal3 = new Journal({ title: 'Day 3', content: 'REST APIs are fun!', author: 'srinivas' });
 
-  await costume1.save();
-  await costume2.save();
-  await costume3.save();
+  await journal1.save();
+  await journal2.save();
+  await journal3.save();
 
-  console.log("✅ Costume seed data saved to DB!");
+  console.log("✅ Journal seed data saved to DB!");
 }
 
 // Connect and seed
 mongoose.connect(connectionString)
   .then(async () => {
     console.log('✅ Connection to MongoDB Atlas succeeded!');
-
-    // 👇 Run this ONCE and then comment it
-    // await recreateDB();
+    // await recreateDB(); // Uncomment this to seed ONCE
   })
   .catch(err => {
     console.error('❌ MongoDB connection error:', err);
@@ -53,8 +51,9 @@ const indexRouter = require('./routes/index');
 const journalsRouter = require('./routes/journals');
 const gridRouter = require('./routes/grid');
 const pickRouter = require('./routes/pick');
-const resourceRouter = require('./routes/resource'); // ← NEW
+const resourceRouter = require('./routes/resource');
 
+// App Initialization
 const app = express();
 
 // View Engine Setup
@@ -68,20 +67,22 @@ app.use(express.urlencoded({ extended: false }));
 app.use(cookieParser());
 app.use(express.static(path.join(__dirname, 'public')));
 
-// Routes
+// Route Usage
 app.use('/', indexRouter);
 app.use('/journals', journalsRouter);
 app.use('/grid', gridRouter);
 app.use('/pick', pickRouter);
-app.use('/resource', resourceRouter); // ← NEW API endpoint
+app.use('/resource', resourceRouter);
 
-// Catch 404
-app.use(function (req, res, next) {
+
+// 🔍 Debug unmatched routes before 404
+app.all('*', (req, res, next) => {
+  console.log(`🛑 Unmatched Request: ${req.method} ${req.originalUrl}`);
   next(createError(404));
 });
 
 // Error Handler
-app.use(function (err, req, res, next) {
+app.use((err, req, res, next) => {
   res.locals.message = err.message;
   res.locals.error = req.app.get('env') === 'development' ? err : {};
   res.status(err.status || 500);

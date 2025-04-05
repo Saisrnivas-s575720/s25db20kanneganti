@@ -17,17 +17,10 @@ if (!connectionString) {
 
 console.log("🔌 Attempting DB connection to:", connectionString);
 
-mongoose.connect(connectionString)
-  .then(() => console.log('✅ Connection to MongoDB Atlas succeeded!'))
-  .catch(err => {
-    console.error('❌ MongoDB connection error:', err);
-    process.exit(1);
-  });
-
-// Load Models
+// Load Model
 const Costume = require('./models/costume');
 
-// Optional: Seed data
+// Seed Data (optional)
 async function recreateDB() {
   await Costume.deleteMany();
 
@@ -42,14 +35,25 @@ async function recreateDB() {
   console.log("✅ Costume seed data saved to DB!");
 }
 
-// 🔁 Run this ONCE to seed, then comment it out
-// recreateDB();
+// Connect and seed
+mongoose.connect(connectionString)
+  .then(async () => {
+    console.log('✅ Connection to MongoDB Atlas succeeded!');
+
+    // 👇 Run this ONCE and then comment it
+    // await recreateDB();
+  })
+  .catch(err => {
+    console.error('❌ MongoDB connection error:', err);
+    process.exit(1);
+  });
 
 // Route Files
 const indexRouter = require('./routes/index');
 const journalsRouter = require('./routes/journals');
 const gridRouter = require('./routes/grid');
 const pickRouter = require('./routes/pick');
+const resourceRouter = require('./routes/resource'); // ← NEW
 
 const app = express();
 
@@ -69,6 +73,7 @@ app.use('/', indexRouter);
 app.use('/journals', journalsRouter);
 app.use('/grid', gridRouter);
 app.use('/pick', pickRouter);
+app.use('/resource', resourceRouter); // ← NEW API endpoint
 
 // Catch 404
 app.use(function (req, res, next) {
@@ -84,4 +89,3 @@ app.use(function (err, req, res, next) {
 });
 
 module.exports = app;
-

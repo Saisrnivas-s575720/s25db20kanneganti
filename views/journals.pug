@@ -1,20 +1,23 @@
 extends layout
 
 block content
-  h1 Search Results: Journals
+  h1 Journals
 
-  -
-    var results = [
-      { title: "Journal of Astrophysics", field: "Astronomy", impactFactor: 8.2 },
-      { title: "Machine Learning Review", field: "Artificial Intelligence", impactFactor: 12.7 },
-      { title: "Global Climate Reports", field: "Environmental Science", impactFactor: 6.5 }
-    ];
+  // Button to add new journal
+  a.btn.btn-primary(href='/journals/create') Add New Journal
 
-  .container-fluid
-    .row
-    
-      each journal in results
-        .col-sm-2.bg-light.border.p-2.m-2.rounded
-          p Title: #{journal.title}
-          p Field: #{journal.field}
-          p Impact Factor: #{journal.impactFactor}
+  // Loop through all the journals and display basic information with action buttons
+  each journal in results
+    .journal-card
+      .journal-title
+        h3 #{journal.title}
+      .journal-author
+        p Author: #{journal.author}
+      .journal-content
+        p Content: #{journal.content.substring(0, 100)}...  // Display a preview of content
+      // Action buttons: inspect, update, delete
+      .journal-actions
+        a.btn.btn-info(href=`/journals/${journal._id}`) Inspect
+        a.btn.btn-warning(href=`/journals/${journal._id}/edit`) Update
+        form(action=`/journals/${journal._id}?_method=DELETE`, method='POST')
+          button.btn.btn-danger(type="submit") Delete

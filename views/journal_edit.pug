@@ -1,0 +1,19 @@
+
+extends layout
+
+block content
+  h1 Edit Journal
+
+  // Form to update the journal
+  form(action=`/journals/${journal._id}`, method='POST')
+    input(type='hidden', name='_method', value='PUT')  // Use method override for PUT
+    .mb-3
+      label(for="title") Title
+      input.form-control(type="text", name="title", value=journal.title, required=true)
+    .mb-3
+      label(for="content") Content
+      textarea.form-control(name="content", rows="5", required=true) #{journal.content}
+    .mb-3
+      label(for="author") Author
+      input.form-control(type="text", name="author", value=journal.author, required=true)
+    button.btn.btn-primary(type="submit") Update Journal

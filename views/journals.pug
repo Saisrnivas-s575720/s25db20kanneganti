@@ -1,23 +1,23 @@
 extends layout
 
 block content
-  h1= title
+  h1 Journals
 
-  .container-fluid
-    .row
-      if results.length
-        each journal in results
-          .col-sm-3.bg-light.border.p-3.m-2.rounded.shadow-sm
-            h5= journal.title
-            p Author: #{journal.author}
-            p Content: #{journal.content}
-      else
-        p.text-muted No journal entries found.
-a.btn.btn-sm.btn-outline-primary(href=`/journals/${journal._id}/edit`) Edit
-a.btn.btn-sm.btn-outline-danger(href=`/journals/${journal._id}/delete`) Delete
+  // Button to add new journal
+  a.btn.btn-primary(href='/journals/create') Add New Journal
 
-  else
-    p.text-muted No journal entries found.
-
-  //- Link to the form for adding a new journal entry
-  a.btn.btn-primary(href="/resource/journals/new") Add New Journal Entry
+  // Loop through all the journals and display basic information with action buttons
+  each journal in results
+    .journal-card
+      .journal-title
+        h3 #{journal.title}
+      .journal-author
+        p Author: #{journal.author}
+      .journal-content
+        p Content: #{journal.content.substring(0, 100)}...  // Display a preview of content
+      // Action buttons: inspect, update, delete
+      .journal-actions
+        a.btn.btn-info(href=`/journals/${journal._id}`) Inspect
+        a.btn.btn-warning(href=`/journals/${journal._id}/edit`) Update
+        form(action=`/journals/${journal._id}?_method=DELETE`, method='POST')
+          button.btn.btn-danger(type="submit") Delete

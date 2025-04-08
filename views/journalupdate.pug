@@ -1,0 +1,16 @@
+extends layout
+
+block content
+  h1 Edit Journal
+
+  form(method='POST', action=`/journals/${journal._id}/update`)
+    .mb-3
+      label(for="title") Title
+      input.form-control(type="text", name="title", required, value=journal.title)
+    .mb-3
+      label(for="content") Content
+      textarea.form-control(name="content", rows="5", required)= journal.content
+    .mb-3
+      label(for="author") Author
+      input.form-control(type="text", name="author", required, value=journal.author)
+    button.btn.btn-primary(type="submit") Update

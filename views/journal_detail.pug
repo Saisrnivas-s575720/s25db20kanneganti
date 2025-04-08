@@ -1,0 +1,14 @@
+extends layout
+
+block content
+  h1 Journal Details
+
+  .journal-detail
+    h2 #{journal.title}
+    p Author: #{journal.author}
+    p Content: #{journal.content}
+
+  .journal-actions
+    a.btn.btn-warning(href=`/journals/${journal._id}/edit`) Edit
+    form(action=`/journals/${journal._id}?_method=DELETE`, method='POST')
+      button.btn.btn-danger(type="submit") Delete

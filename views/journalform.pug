@@ -1,8 +1,10 @@
 extends layout
 
 block content
-  h1= title
-  form(action="/resource/journals" method="POST")
+  h1 Create Journal
+
+  // Form to add a new journal
+  form(action='/journals', method='POST')
     .mb-3
       label(for="title") Title
       input.form-control(type="text", name="title", required=true)

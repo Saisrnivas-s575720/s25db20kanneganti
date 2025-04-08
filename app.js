@@ -20,7 +20,7 @@ console.log("🔌 Attempting DB connection to:", connectionString);
 // Load Journal Model
 const Journal = require('./models/journal');
 
-// Seed Data (optional)
+// Optional Seed Data
 async function recreateDB() {
   await Journal.deleteMany();
 
@@ -35,12 +35,13 @@ async function recreateDB() {
   console.log("✅ Journal seed data saved to DB!");
 }
 
-// Connect and seed
+// Connect and optionally seed
 mongoose.connect(connectionString)
   .then(async () => {
     console.log('✅ Connection to MongoDB Atlas succeeded!');
-    // Uncomment to seed once
-    // await recreateDB();
+    if (process.env.SEED_DB === 'true') {
+      await recreateDB();
+    }
   })
   .catch(err => {
     console.error('❌ MongoDB connection error:', err);
@@ -52,7 +53,7 @@ const indexRouter = require('./routes/index');
 const journalsRouter = require('./routes/journals');
 const gridRouter = require('./routes/grid');
 const pickRouter = require('./routes/pick');
-const resourceRouter = require('./routes/resource');  // DO NOT destructure!
+const resourceRouter = require('./routes/resource');
 
 // App Initialization
 const app = express();
@@ -68,17 +69,38 @@ app.use(express.urlencoded({ extended: false }));
 app.use(cookieParser());
 app.use(express.static(path.join(__dirname, 'public')));
 
-// Route Usage
+// method-override for PUT/DELETE from forms
+const methodOverride = require('method-override');
+app.use(methodOverride('_method'));
+
+// Optional: Flash Messages
+const session = require('express-session');
+const flash = require('connect-flash');
+
+app.use(session({
+  secret: 'journalSecret',
+  resave: false,
+  saveUninitialized: true
+}));
+app.use(flash());
+
+app.use((req, res, next) => {
+  res.locals.success = req.flash('success');
+  res.locals.error = req.flash('error');
+  next();
+});
+
+// Routes
 app.use('/', indexRouter);
 app.use('/journals', journalsRouter);
 app.use('/grid', gridRouter);
 app.use('/pick', pickRouter);
-app.use('/resource', resourceRouter);  // This must be the actual router!
+app.use('/resource', resourceRouter);
 
-// 🔍 Debug unmatched routes before 404
+// 🔍 Log unmatched requests
 app.all('*', (req, res, next) => {
-  console.log(`🛑 Unmatched Request: ${req.method} ${req.originalUrl}`);  // Debugging log
-  next(createError(404));  // Trigger the 404 handler
+  console.log(`🛑 Unmatched Request: ${req.method} ${req.originalUrl}`);
+  next(createError(404));
 });
 
 // Error Handler

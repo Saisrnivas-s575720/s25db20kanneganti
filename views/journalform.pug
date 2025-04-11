@@ -4,7 +4,7 @@ block content
   h1 Create Journal
 
   // Form to add a new journal
-  form(action='/journals', method='POST')
+  form(action='/journals/create', method='POST')
     .mb-3
       label(for="title") Title
       input.form-control(type="text", name="title", required=true)
@@ -15,4 +15,3 @@ block content
       label(for="author") Author
       input.form-control(type="text", name="author", required=true)
     button.btn.btn-primary(type="submit") Submit
-

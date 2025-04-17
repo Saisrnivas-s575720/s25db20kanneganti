@@ -1,11 +1,16 @@
 doctype html
 html
   head
-    title= title
-    link(rel="stylesheet", href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css", integrity="sha384-9ndCyUaIbzAi2FUVXJi0CjmCapSmO7OGpamoFVy38MVBnE+IbbVYUew+OrCXaRkfj", crossorigin="anonymous")
-    script(src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js", integrity="sha384-ENjdO4Dr2bkBIFxQpeo5H84AbIYt9f2c94Fh2xMIOeLtq6Mq24H+gka3aF9cdz4H", crossorigin="anonymous")
+    title
+      if title
+        = title
+      else
+        | My Journal
+    link(rel="stylesheet", href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css")
+    script(src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js")
     link(rel='stylesheet', href='/stylesheets/style.css')
-    link(rel='stylesheet', href='/stylesheets/custom.css')
+    link(rel="preconnect", href="https://fonts.googleapis.com")
+    link(rel="preconnect", href="https://fonts.gstatic.com" crossorigin)
+    link(href="https://fonts.googleapis.com/css2?family=Dancing+Script&family=Libre+Baskerville&display=swap", rel="stylesheet")
   body
     block content
-

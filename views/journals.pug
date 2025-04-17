@@ -1,23 +1,27 @@
 extends layout
 
 block content
-  h1 Journals
+  h1.text-center.mb-4= title
 
-  // Button to add new journal
-  a.btn.btn-primary(href='/journals/create') Add New Journal
+  a.btn.btn-success.mb-3(href="/journals/create") + New Journal
 
-  // Loop through all the journals and display basic information with action buttons
-  each journal in results
-    .journal-card
-      .journal-title
-        h3 #{journal.title}
-      .journal-author
-        p Author: #{journal.author}
-      .journal-content
-        p Content: #{journal.content.substring(0, 100)}...  // Display a preview of content
-      // Action buttons: inspect, update, delete
-      .journal-actions
-        a.btn.btn-info(href=`/journals/${journal._id}`) Inspect
-        a.btn.btn-warning(href=`/journals/${journal._id}/edit`) Update
-        form(action=`/journals/${journal._id}?_method=DELETE`, method='POST')
-          button.btn.btn-danger(type="submit") Delete
+  if results.length
+    table.table.table-striped
+      thead
+        tr
+          th Title
+          th Author
+          th Content
+          th Actions
+      tbody
+        each journal in results
+          tr
+            td= journal.title
+            td= journal.author
+            td= journal.content.length > 50 ? journal.content.substring(0, 50) + "..." : journal.content
+            td
+              a.btn.btn-sm.btn-primary(href=`/journals/detail?id=${journal._id}`) View
+              a.btn.btn-sm.btn-warning.ms-2(href=`/journals/${journal._id}/edit`) Edit
+              a.btn.btn-sm.btn-danger.ms-2(href=`/journals/${journal._id}/delete`) Delete
+  else
+    p.text-muted.text-center No journal entries found.

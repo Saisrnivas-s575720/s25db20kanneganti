@@ -1,17 +1,20 @@
 extends layout
 
 block content
-  h1 Create Journal
+  h1 Create Journal Entry
 
-  // Form to add a new journal
-  form(action='/journals/create', method='POST')
+  form(action="/journals/create", method="POST")
     .mb-3
-      label(for="title") Title
-      input.form-control(type="text", name="title", required=true)
+      label(for="title") Title:
+      input.form-control(type="text", name="title", required)
+
     .mb-3
-      label(for="content") Content
-      textarea.form-control(name="content", rows="5", required=true)
+      label(for="author") Author:
+      input.form-control(type="text", name="author", required)
+
     .mb-3
-      label(for="author") Author
-      input.form-control(type="text", name="author", required=true)
-    button.btn.btn-primary(type="submit") Submit
+      label(for="content") Content:
+      textarea.form-control(name="content", rows="4")
+
+    button.btn.btn-success(type="submit") Create
+    a.btn.btn-secondary.ms-2(href="/journals") Cancel

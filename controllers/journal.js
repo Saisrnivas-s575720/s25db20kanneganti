@@ -38,7 +38,8 @@ exports.journal_create_post = async function (req, res) {
   try {
     const result = await document.save();
     if (req.headers.accept.includes('text/html')) {
-      res.redirect('/journals');
+      req.flash('success', 'Journal created successfully!');
+      res.redirect('/journals/list');
     } else {
       res.status(201).send(result);
     }
@@ -70,7 +71,8 @@ exports.journal_delete = async function (req, res) {
     if (!result) return res.status(404).send({ error: "Journal not found" });
 
     if (req.headers.accept.includes('text/html')) {
-      res.redirect('/journals');
+      req.flash('success', 'Journal deleted successfully!');
+      res.redirect('/journals/list');
     } else {
       res.send({ message: "Journal deleted", deleted: result });
     }
@@ -94,13 +96,59 @@ exports.journal_view_all_Page = async function (req, res) {
   }
 };
 
+// Render: detail view of one journal by query parameter (?id=...)
+exports.journal_view_one_Page = async function (req, res) {
+  try {
+    const id = req.query.id;
+    if (!id) {
+      req.flash('error', 'Missing journal ID.');
+      return res.redirect('/journals/list');
+    }
+
+    const journal = await Journal.findById(id);
+    if (!journal) {
+      return res.render('journaldetail', {
+        title: 'Journal Detail',
+        toShow: null,
+        error: 'Journal not found.'
+      });
+    }
+
+    res.render('journaldetail', {
+      title: 'Journal Detail',
+      toShow: journal
+    });
+  } catch (err) {
+    res.status(500).send({ error: err.message });
+  }
+};
+
+// Render: journal create form (HTML)
+exports.journal_create_page = function (req, res) {
+  try {
+    res.render('journalform', { title: 'Create Journal' });
+  } catch (err) {
+    res.status(500).send({ error: err.message });
+  }
+};
+
 // Render: journal update form (HTML)
 exports.journal_update_get = async function (req, res) {
   try {
-    const journal = await Journal.findById(req.params.id.trim());
-    if (!journal) return res.status(404).send({ error: "Journal not found" });
+    const id = req.params.id.trim();
+    const journal = await Journal.findById(id);
+    if (!journal) {
+      return res.render('journalupdate', {
+        title: 'Edit Journal',
+        journal: null,
+        error: 'Journal not found.'
+      });
+    }
 
-    res.render('journalupdate', { title: 'Edit Journal', journal: journal });
+    res.render('journalupdate', {
+      title: 'Edit Journal',
+      journal: journal
+    });
   } catch (err) {
     res.status(500).send({ error: err.message });
   }
@@ -119,9 +167,13 @@ exports.journal_update_post = async function (req, res) {
       { new: true, runValidators: true }
     );
 
-    if (!updatedJournal) return res.status(404).send({ error: "Journal not found" });
+    if (!updatedJournal) {
+      req.flash('error', 'Journal not found.');
+      return res.redirect('/journals/list');
+    }
 
-    res.redirect('/journals');
+    req.flash('success', 'Journal updated successfully!');
+    res.redirect('/journals/list');
   } catch (err) {
     res.status(500).send({ error: err.message });
   }
@@ -131,7 +183,10 @@ exports.journal_update_post = async function (req, res) {
 exports.journal_delete_get = async function (req, res) {
   try {
     const journal = await Journal.findById(req.params.id.trim());
-    if (!journal) return res.status(404).send({ error: "Journal not found" });
+    if (!journal) {
+      req.flash('error', 'Journal not found.');
+      return res.redirect('/journals/list');
+    }
 
     res.render('journaldelete', { title: 'Delete Journal', journal: journal });
   } catch (err) {

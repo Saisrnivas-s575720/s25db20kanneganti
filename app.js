@@ -1,4 +1,4 @@
-// Required Modules
+// 🌐 Required Modules
 const createError = require('http-errors');
 const express = require('express');
 const path = require('path');
@@ -6,7 +6,7 @@ const cookieParser = require('cookie-parser');
 const logger = require('morgan');
 require('dotenv').config();
 
-// MongoDB + Mongoose Setup
+// 🔌 MongoDB + Mongoose Setup
 const mongoose = require('mongoose');
 const connectionString = process.env.MONGO_CON;
 
@@ -17,10 +17,9 @@ if (!connectionString) {
 
 console.log("🔌 Attempting DB connection to:", connectionString);
 
-// Load Journal Model
+// 🔄 Load Journal Model + Seed (Optional)
 const Journal = require('./models/journal');
 
-// Optional Seed Data
 async function recreateDB() {
   await Journal.deleteMany();
 
@@ -35,7 +34,6 @@ async function recreateDB() {
   console.log("✅ Journal seed data saved to DB!");
 }
 
-// Connect and optionally seed
 mongoose.connect(connectionString)
   .then(async () => {
     console.log('✅ Connection to MongoDB Atlas succeeded!');
@@ -48,32 +46,32 @@ mongoose.connect(connectionString)
     process.exit(1);
   });
 
-// Route Files
+// 📂 Route Files
 const indexRouter = require('./routes/index');
 const journalsRouter = require('./routes/journals');
 const gridRouter = require('./routes/grid');
 const pickRouter = require('./routes/pick');
 const resourceRouter = require('./routes/resource');
 
-// App Initialization
+// 🚀 App Initialization
 const app = express();
 
-// View Engine Setup
+// 🖼️ View Engine Setup
 app.set('views', path.join(__dirname, 'views'));
 app.set('view engine', 'pug');
 
-// Middleware
+// ⚙️ Core Middleware
 app.use(logger('dev'));
 app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
 app.use(cookieParser());
 app.use(express.static(path.join(__dirname, 'public')));
 
-// method-override for PUT/DELETE from forms
+// 🔁 Method Override for PUT/DELETE in Forms
 const methodOverride = require('method-override');
 app.use(methodOverride('_method'));
 
-// Optional: Flash Messages
+// 💬 Flash Messages + Session
 const session = require('express-session');
 const flash = require('connect-flash');
 
@@ -82,28 +80,31 @@ app.use(session({
   resave: false,
   saveUninitialized: true
 }));
+
 app.use(flash());
 
+// 🌍 Global Variables for Views
 app.use((req, res, next) => {
   res.locals.success = req.flash('success');
   res.locals.error = req.flash('error');
+  res.locals.title = 'My Journal App'; // Default title (can be overwritten per view)
   next();
 });
 
-// Routes
+// 🛣️ Route Mounting
 app.use('/', indexRouter);
 app.use('/journals', journalsRouter);
 app.use('/grid', gridRouter);
 app.use('/pick', pickRouter);
 app.use('/resource', resourceRouter);
 
-// 🔍 Log unmatched requests
+// ❌ Catch All Unmatched Requests
 app.all('*', (req, res, next) => {
   console.log(`🛑 Unmatched Request: ${req.method} ${req.originalUrl}`);
   next(createError(404));
 });
 
-// Error Handler
+// ⚠️ Global Error Handler
 app.use((err, req, res, next) => {
   res.locals.message = err.message;
   res.locals.error = req.app.get('env') === 'development' ? err : {};
@@ -112,3 +113,4 @@ app.use((err, req, res, next) => {
 });
 
 module.exports = app;
+// 🌐 Start Server  

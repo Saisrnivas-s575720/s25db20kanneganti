@@ -1,0 +1,15 @@
+extends layout
+
+block content
+  h1= title
+  if journal_list.length
+    ul
+      each journal in journal_list
+        li
+          h3 #{journal.title}
+          p #{journal.content}
+          p Created At: #{journal.createdAt}
+          p Updated At: #{journal.updatedAt}
+  else
+    p No journals found.
+    a.btn.btn-primary(href="/journals/new") Create New Journal  

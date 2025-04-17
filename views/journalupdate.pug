@@ -1,16 +1,32 @@
 extends layout
 
 block content
-  h1 Edit Journal
+  h1.text-center.mb-4= title
 
-  form(method='POST', action=`/journals/${journal._id}/update`)
-    .mb-3
-      label(for="title") Title
-      input.form-control(type="text", name="title", required, value=journal.title)
-    .mb-3
-      label(for="content") Content
-      textarea.form-control(name="content", rows="5", required)= journal.content
-    .mb-3
-      label(for="author") Author
-      input.form-control(type="text", name="author", required, value=journal.author)
-    button.btn.btn-primary(type="submit") Update
+  if !journal
+    .alert.alert-danger(role="alert")
+      h4.alert-heading Journal not found.
+      p Please check the URL or go back to the list.
+    a.btn.btn-secondary.mt-3(href="/journals/list") Back to List
+  else
+    // Flash messages (if passed from controller)
+    if success
+      .alert.alert-success(role="alert")= success
+    if error
+      .alert.alert-danger(role="alert")= error
+
+    form(action=`/journals/${journal._id}/update`, method="POST", class="p-4 border rounded shadow-sm bg-light")
+      .mb-3
+        label.form-label(for="title") Title
+        input.form-control(type="text", name="title", id="title", required, value=journal.title)
+
+      .mb-3
+        label.form-label(for="author") Author
+        input.form-control(type="text", name="author", id="author", required, value=journal.author)
+
+      .mb-3
+        label.form-label(for="content") Content
+        textarea.form-control(name="content", id="content", rows="6")= journal.content
+
+      button.btn.btn-primary(type="submit") Update
+      a.btn.btn-secondary.ms-2(href="/journals/list") Cancel

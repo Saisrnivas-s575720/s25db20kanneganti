@@ -5,11 +5,19 @@ block content
   if journal_list.length
     ul
       each journal in journal_list
-        li
+        li.mb-4
           h3 #{journal.title}
           p #{journal.content}
           p Created At: #{journal.createdAt}
           p Updated At: #{journal.updatedAt}
+
+          //- Add Update Button
+          button.btn.btn-warning(onclick=`dispatch('/journals/update?id=${journal._id}')`) ✏️ Update
   else
     p No journals found.
-    a.btn.btn-primary(href="/journals/new") Create New Journal  
+    a.btn.btn-primary(href="/journals/new") Create New Journal
+
+  script.
+    function dispatch(path){
+      window.location.href = path;
+    }

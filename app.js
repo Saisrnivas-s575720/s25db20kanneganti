@@ -17,7 +17,7 @@ if (!connectionString) {
 
 console.log("🔌 Attempting DB connection to:", connectionString);
 
-// 🔄 Load Journal Model + Seed (Optional)
+// 🔄 Load Journal Model + Optional Seed Data
 const Journal = require('./models/journal');
 
 async function recreateDB() {
@@ -34,9 +34,12 @@ async function recreateDB() {
   console.log("✅ Journal seed data saved to DB!");
 }
 
-mongoose.connect(connectionString)
+mongoose.connect(connectionString, {
+  useNewUrlParser: true,
+  useUnifiedTopology: true
+})
   .then(async () => {
-    console.log('✅ Connection to MongoDB Atlas succeeded!');
+    console.log('✅ Connected to MongoDB Atlas!');
     if (process.env.SEED_DB === 'true') {
       await recreateDB();
     }
@@ -60,14 +63,14 @@ const app = express();
 app.set('views', path.join(__dirname, 'views'));
 app.set('view engine', 'pug');
 
-// ⚙️ Core Middleware
+// ⚙️ Middleware
 app.use(logger('dev'));
 app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
 app.use(cookieParser());
 app.use(express.static(path.join(__dirname, 'public')));
 
-// 🔁 Method Override for PUT/DELETE in Forms
+// 🔁 Method Override for PUT/DELETE from forms
 const methodOverride = require('method-override');
 app.use(methodOverride('_method'));
 
@@ -80,14 +83,13 @@ app.use(session({
   resave: false,
   saveUninitialized: true
 }));
-
 app.use(flash());
 
-// 🌍 Global Variables for Views
+// 🌍 Global Template Variables
 app.use((req, res, next) => {
   res.locals.success = req.flash('success');
   res.locals.error = req.flash('error');
-  res.locals.title = 'My Journal App'; // Default title (can be overwritten per view)
+  res.locals.title = 'My Journal App'; // default fallback title
   next();
 });
 
@@ -98,7 +100,7 @@ app.use('/grid', gridRouter);
 app.use('/pick', pickRouter);
 app.use('/resource', resourceRouter);
 
-// ❌ Catch All Unmatched Requests
+// ❌ Catch All Unmatched Routes
 app.all('*', (req, res, next) => {
   console.log(`🛑 Unmatched Request: ${req.method} ${req.originalUrl}`);
   next(createError(404));
@@ -113,4 +115,3 @@ app.use((err, req, res, next) => {
 });
 
 module.exports = app;
-// 🌐 Start Server  

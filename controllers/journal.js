@@ -23,28 +23,35 @@ exports.journal_detail = async function (req, res) {
   }
 };
 
-// POST new journal (JSON or Form)
+// POST new journal (JSON or HTML form)
 exports.journal_create_post = async function (req, res) {
-  if (!req.body.title || !req.body.content || !req.body.author) {
-    return res.status(400).send({ error: "Missing required fields" });
-  }
-
-  const document = new Journal({
-    title: req.body.title,
-    content: req.body.content,
-    author: req.body.author
-  });
-
   try {
+    const { title, content } = req.body;
+    const authorId = req.user ? req.user._id : req.body.author;
+
+    if (!title || !content || !authorId) {
+      return res.status(400).send({ error: "Missing required fields" });
+    }
+
+    const document = new Journal({ title, content, author: authorId });
     const result = await document.save();
-    if (req.headers.accept.includes('text/html')) {
+
+    if (req.headers.accept && req.headers.accept.includes('text/html')) {
       req.flash('success', 'Journal created successfully!');
       res.redirect('/journals/list');
     } else {
       res.status(201).send(result);
     }
   } catch (err) {
-    res.status(500).send({ error: err.message });
+    console.error("❌ Journal creation error:", err);
+    if (req.headers.accept && req.headers.accept.includes('text/html')) {
+      res.render('journalform', {
+        title: 'Create Journal',
+        error: err.message
+      });
+    } else {
+      res.status(500).send({ error: err.message });
+    }
   }
 };
 
@@ -70,7 +77,7 @@ exports.journal_delete = async function (req, res) {
     const result = await Journal.findByIdAndDelete(req.params.id.trim());
     if (!result) return res.status(404).send({ error: "Journal not found" });
 
-    if (req.headers.accept.includes('text/html')) {
+    if (req.headers.accept && req.headers.accept.includes('text/html')) {
       req.flash('success', 'Journal deleted successfully!');
       res.redirect('/journals/list');
     } else {
@@ -83,10 +90,10 @@ exports.journal_delete = async function (req, res) {
 
 // -------------------- WEB VIEW CONTROLLERS -------------------- //
 
-// Render: list of journals (HTML)
+// Render: list of journals
 exports.journal_view_all_Page = async function (req, res) {
   try {
-    const journals = await Journal.find();
+    const journals = await Journal.find().populate('author');
     res.render('journals', {
       title: 'Journal Entries',
       results: journals
@@ -96,7 +103,7 @@ exports.journal_view_all_Page = async function (req, res) {
   }
 };
 
-// Render: detail view of one journal by query parameter (?id=...)
+// Render: single journal by ?id=...
 exports.journal_view_one_Page = async function (req, res) {
   try {
     const id = req.query.id;
@@ -105,25 +112,25 @@ exports.journal_view_one_Page = async function (req, res) {
       return res.redirect('/journals/list');
     }
 
-    const journal = await Journal.findById(id);
+    const journal = await Journal.findById(id).populate('author');
     if (!journal) {
       return res.render('journaldetail', {
         title: 'Journal Detail',
-        toShow: null,
+        journal: null,
         error: 'Journal not found.'
       });
     }
 
     res.render('journaldetail', {
       title: 'Journal Detail',
-      toShow: journal
+      journal: journal
     });
   } catch (err) {
     res.status(500).send({ error: err.message });
   }
 };
 
-// Render: journal create form (HTML)
+// Render: create form
 exports.journal_create_page = function (req, res) {
   try {
     res.render('journalform', { title: 'Create Journal' });
@@ -132,7 +139,7 @@ exports.journal_create_page = function (req, res) {
   }
 };
 
-// Render: journal update form (HTML)
+// Render: update form
 exports.journal_update_get = async function (req, res) {
   try {
     const id = req.params.id.trim();
@@ -157,20 +164,25 @@ exports.journal_update_get = async function (req, res) {
 // POST: update journal via HTML form
 exports.journal_update_post = async function (req, res) {
   try {
-    const updatedJournal = await Journal.findByIdAndUpdate(
-      req.params.id.trim(),
-      {
-        title: req.body.title,
-        content: req.body.content,
-        author: req.body.author
-      },
-      { new: true, runValidators: true }
-    );
+    const journalId = req.params.id.trim();
+    const journalToUpdate = await Journal.findById(journalId);
 
-    if (!updatedJournal) {
+    if (!journalToUpdate) {
       req.flash('error', 'Journal not found.');
       return res.redirect('/journals/list');
     }
+
+    const authorId = req.user ? req.user._id : journalToUpdate.author;
+
+    const updatedJournal = await Journal.findByIdAndUpdate(
+      journalId,
+      {
+        title: req.body.title,
+        content: req.body.content,
+        author: authorId
+      },
+      { new: true, runValidators: true }
+    );
 
     req.flash('success', 'Journal updated successfully!');
     res.redirect('/journals/list');
@@ -179,7 +191,7 @@ exports.journal_update_post = async function (req, res) {
   }
 };
 
-// Render: delete confirmation page (HTML)
+// Render: delete confirmation
 exports.journal_delete_get = async function (req, res) {
   try {
     const journal = await Journal.findById(req.params.id.trim());

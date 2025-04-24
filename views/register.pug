@@ -1,0 +1,19 @@
+extends layout
+
+block content
+  .container.d-flex.justify-content-center.align-items-center.min-vh-100
+    .card.shadow-lg.p-4(style="max-width: 400px; width: 100%; border-radius: 1rem;")
+      .card-body
+        h2.text-center.mb-4(style="font-family: 'Dancing Script', cursive; font-size: 2.2rem;") Register
+
+        if message
+          p.text-danger.text-center= message
+
+        form(action="/register", method="POST")
+          .mb-3
+            input.form-control.form-control-lg(type='text', name='username', placeholder='Enter Username', required)
+          .mb-3
+            input.form-control.form-control-lg(type='password', name='password', placeholder='Enter Password', required)
+          .d-grid.gap-2.mt-4
+            button.btn.btn-success.btn-lg(type='submit') Register
+            a.btn.btn-outline-secondary.btn-lg(href='/') Cancel

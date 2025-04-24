@@ -2,33 +2,41 @@ const express = require('express');
 const router = express.Router();
 const journal_controller = require('../controllers/journal');
 
-// ✅ List view - SHOW ALL JOURNALS (web page)
-router.get('/list', journal_controller.journal_view_all_Page); // 🔥 Make sure this is before any dynamic route
+//  Authentication middleware with flash message
+function secured(req, res, next) {
+  if (req.isAuthenticated()) {
+    return next();
+  }
+  req.flash('error', 'You must be logged in to access this page.'); //  Add this
+  req.session.toReturn = req.originalUrl;
+  res.redirect("/login");
+}
 
-// ✅ Journal create form (GET) and submit (POST)
-router.get('/create', journal_controller.journal_create_page);
-router.post('/create', journal_controller.journal_create_post);
+//  Web Page Routes
 
-// ✅ Detail page by query (?id=...)
-router.get('/detail', journal_controller.journal_view_one_Page);
-
-// ✅ Edit form + update
-router.get('/:id/edit', journal_controller.journal_update_get);
-router.get('/:id/update', journal_controller.journal_update_get);
-router.post('/:id/update', journal_controller.journal_update_post);
-
-// ✅ Delete form (GET) and delete (DELETE)
-router.get('/:id/delete', journal_controller.journal_delete_get);
-router.delete('/:id', journal_controller.journal_delete);
-
-// ✅ Default route - redirect to /list or show all
+// Redirect /journals → /journals/list
 router.get('/', (req, res) => {
   res.redirect('/journals/list');
 });
 
-// ✅ REST API route for single journal by ID (JSON)
-router.get('/:id', journal_controller.journal_detail);
+// Public Routes
+router.get('/list', journal_controller.journal_view_all_Page);
+router.get('/detail', journal_controller.journal_view_one_Page);
 
-module.exports = router;
+// Protected Create Routes
+router.get('/create', secured, journal_controller.journal_create_page);
+router.post('/create', secured, journal_controller.journal_create_post);
+
+// Protected Update Routes
+router.get('/:id/edit', secured, journal_controller.journal_update_get);
+router.get('/:id/update', secured, journal_controller.journal_update_get);
+router.post('/:id/update', secured, journal_controller.journal_update_post);
+
+// Protected Delete Routes
+router.get('/:id/delete', secured, journal_controller.journal_delete_get);
+router.delete('/:id', secured, journal_controller.journal_delete);
+
+// 🔁 REST API Route (keep this last)
+router.get('/:id', journal_controller.journal_detail);
 
 module.exports = router;

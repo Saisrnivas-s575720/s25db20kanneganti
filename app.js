@@ -6,7 +6,10 @@ const cookieParser = require('cookie-parser');
 const logger = require('morgan');
 require('dotenv').config();
 
-// 🔌 MongoDB + Mongoose Setup
+// 🔐 Security
+const helmet = require('helmet');
+
+// 🔌 MongoDB + Mongoose
 const mongoose = require('mongoose');
 const connectionString = process.env.MONGO_CON;
 
@@ -17,49 +20,56 @@ if (!connectionString) {
 
 console.log("🔌 Attempting DB connection to:", connectionString);
 
-// 🔄 Load Journal Model + Optional Seed Data
+// 🔄 Load Models
 const Journal = require('./models/journal');
+const Account = require('./models/account');
 
+// ✅ Seed DB
 async function recreateDB() {
-  await Journal.deleteMany();
+  try {
+    await Journal.deleteMany();
 
-  const journal1 = new Journal({ title: 'Day 1', content: 'Started my new journal app!', author: 'srinivas' });
-  const journal2 = new Journal({ title: 'Day 2', content: 'Learning MongoDB and Express', author: 'srinivas' });
-  const journal3 = new Journal({ title: 'Day 3', content: 'REST APIs are fun!', author: 'srinivas' });
+    let author = await Account.findOne({ username: 'srinivas' });
+    if (!author) {
+      author = new Account({ username: 'srinivas' });
+      await Account.register(author, 'test123');
+      console.log("✅ Created seed user 'srinivas'");
+    }
 
-  await journal1.save();
-  await journal2.save();
-  await journal3.save();
+    const entries = [
+      { title: 'Day 1', content: 'Started my new journal app!', author: author._id },
+      { title: 'Day 2', content: 'Learning MongoDB and Express', author: author._id },
+      { title: 'Day 3', content: 'REST APIs are fun!', author: author._id }
+    ];
 
-  console.log("✅ Journal seed data saved to DB!");
+    await Journal.insertMany(entries);
+    console.log("✅ Journal seed data saved to DB!");
+  } catch (err) {
+    console.error("❌ Seed error:", err);
+  }
 }
 
+// 🌍 DB Connect
 mongoose.connect(connectionString, {
   useNewUrlParser: true,
   useUnifiedTopology: true
-})
-  .then(async () => {
-    console.log('✅ Connected to MongoDB Atlas!');
-    if (process.env.SEED_DB === 'true') {
-      await recreateDB();
-    }
-  })
-  .catch(err => {
-    console.error('❌ MongoDB connection error:', err);
-    process.exit(1);
-  });
+}).then(async () => {
+  console.log('✅ Connected to MongoDB Atlas!');
+  if (process.env.SEED_DB === 'true') {
+    await recreateDB();
+  }
+}).catch(err => {
+  console.error('❌ MongoDB connection error:', err);
+  process.exit(1);
+});
 
-// 📂 Route Files
-const indexRouter = require('./routes/index');
-const journalsRouter = require('./routes/journals');
-const gridRouter = require('./routes/grid');
-const pickRouter = require('./routes/pick');
-const resourceRouter = require('./routes/resource');
-
-// 🚀 App Initialization
+// 🚀 Express App
 const app = express();
 
-// 🖼️ View Engine Setup
+// 🛡 Helmet
+app.use(helmet());
+
+// 🖼️ Views
 app.set('views', path.join(__dirname, 'views'));
 app.set('view engine', 'pug');
 
@@ -70,11 +80,11 @@ app.use(express.urlencoded({ extended: false }));
 app.use(cookieParser());
 app.use(express.static(path.join(__dirname, 'public')));
 
-// 🔁 Method Override for PUT/DELETE from forms
+// 🔁 Method Override
 const methodOverride = require('method-override');
 app.use(methodOverride('_method'));
 
-// 💬 Flash Messages + Session
+// 💬 Session + Flash
 const session = require('express-session');
 const flash = require('connect-flash');
 
@@ -85,28 +95,48 @@ app.use(session({
 }));
 app.use(flash());
 
-// 🌍 Global Template Variables
+// 🔑 Passport
+const passport = require('passport');
+const LocalStrategy = require('passport-local').Strategy;
+
+app.use(passport.initialize());
+app.use(passport.session());
+
+passport.use(new LocalStrategy(Account.authenticate()));
+passport.serializeUser(Account.serializeUser());
+passport.deserializeUser(Account.deserializeUser());
+
+// 🌍 Local Variables for Views
 app.use((req, res, next) => {
   res.locals.success = req.flash('success');
   res.locals.error = req.flash('error');
-  res.locals.title = 'My Journal App'; // default fallback title
+  res.locals.title = 'My Journal App';
+  res.locals.currentUser = req.user;
   next();
 });
 
-// 🛣️ Route Mounting
+// 🛣️ Routes
+const indexRouter = require('./routes/index');
+const journalsRouter = require('./routes/journals');
+const gridRouter = require('./routes/grid');
+const pickRouter = require('./routes/pick');
+const resourceRouter = require('./routes/resource');
+const authRouter = require('./routes/auth'); // 🔐 Logout route
+
 app.use('/', indexRouter);
 app.use('/journals', journalsRouter);
 app.use('/grid', gridRouter);
 app.use('/pick', pickRouter);
 app.use('/resource', resourceRouter);
+app.use('/', authRouter); // ✅ mounts /logout
 
-// ❌ Catch All Unmatched Routes
+// ❌ 404 Handler
 app.all('*', (req, res, next) => {
-  console.log(`🛑 Unmatched Request: ${req.method} ${req.originalUrl}`);
+  console.warn(`🛑 Unmatched route: ${req.method} ${req.originalUrl}`);
   next(createError(404));
 });
 
-// ⚠️ Global Error Handler
+// ⚠️ Error Renderer
 app.use((err, req, res, next) => {
   res.locals.message = err.message;
   res.locals.error = req.app.get('env') === 'development' ? err : {};
@@ -115,3 +145,5 @@ app.use((err, req, res, next) => {
 });
 
 module.exports = app;
+// Compare this snippet from routes/journals.js:
+// const express = require('express');  

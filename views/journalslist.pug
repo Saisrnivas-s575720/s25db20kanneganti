@@ -1,23 +1,32 @@
 extends layout
 
 block content
-  h1= title
-  if journal_list.length
-    ul
-      each journal in journal_list
-        li.mb-4
-          h3 #{journal.title}
-          p #{journal.content}
-          p Created At: #{journal.createdAt}
-          p Updated At: #{journal.updatedAt}
+  h1.text-center.mb-4= title
 
-          //- Add Update Button
-          button.btn.btn-warning(onclick=`dispatch('/journals/update?id=${journal._id}')`) ✏️ Update
+  if !journal
+    .alert.alert-danger(role="alert")
+      h4.alert-heading Journal not found.
+      p Please check the URL or go back to the list.
+    a.btn.btn-secondary.mt-3(href="/journals/list") Back to List
   else
-    p No journals found.
-    a.btn.btn-primary(href="/journals/new") Create New Journal
+    // Flash messages (if passed from controller)
+    if success
+      .alert.alert-success(role="alert")= success
+    if error
+      .alert.alert-danger(role="alert")= error
 
-  script.
-    function dispatch(path){
-      window.location.href = path;
-    }
+    form(action=`/journals/${journal._id}/update`, method="POST", class="p-4 border rounded shadow-sm bg-light")
+      .mb-3
+        label.form-label(for="title") Title
+        input.form-control(type="text", name="title", id="title", required, value=journal.title)
+
+      .mb-3
+        label.form-label(for="author") Author
+        input.form-control(type="text", name="author", id="author", required, value=journal.author)
+
+      .mb-3
+        label.form-label(for="content") Content
+        textarea.form-control(name="content", id="content", rows="6")= journal.content
+
+      button.btn.btn-primary(type="submit") Update
+      a.btn.btn-secondary.ms-2(href="/journals/list") Cancel

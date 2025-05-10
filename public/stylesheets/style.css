@@ -1,8 +1,123 @@
-body {
-  padding: 50px;
-  font: 14px "Lucida Grande", Helvetica, Arial, sans-serif;
+/* Attribute label styling */
+.journalAttr {
+  font-weight: bold;
+  color: #333;
+  display: inline-block;
+  min-width: 80px;
+}
+.journalAttr:hover {
+  color: #007bff; /* Change color on hover */
+}
+.journalAttr:active {
+  color: #0056b3; /* Darker color when active */
+}     
+.journalAttr:hover {
+  background-color: #e0f0ff; /* Slightly darker on hover */
+}
+.journalAttr:active {
+  background-color: #d0e8ff; /* Even darker when active */
+}
+.journalAttr:focus {
+  outline: 2px solid #007bff; /* Blue outline on focus */
+}
+.journalAttr:disabled {
+  background-color: #f0f0f0; /* Greyed out when disabled */
+  color: #888;
+}
+.journalAttr:disabled:hover {
+  background-color: #f0f0f0; /* No hover effect when disabled */
+}
+.journalAttr:disabled:active {
+  background-color: #f0f0f0; /* No active effect when disabled */
+}
+.journalAttr:disabled:focus {
+  outline: none; /* No focus outline when disabled */
+}
+.journalAttr .journalAttrValue {
+  font-weight: normal;
+}
+.journalAttr .journalAttrValue:hover {
+  text-decoration: underline;
+}
+.journalAttr .journalAttrValue:active {
+  text-decoration: none;
+}
+.journalAttr .journalAttrValue:focus {
+  text-decoration: underline;
+}
+.journalAttr .journalAttrValue:disabled {
+  color: #888;
+}
+.journalAttr .journalAttrValue:disabled:hover {
+  text-decoration: none;
+}
+.journalAttr .journalAttrValue:disabled:active {
+  text-decoration: none;
+} 
+.btn-info {
+  background-color: #17a2b8;
+  color: white;
 }
 
-a {
-  color: #00B7FF;
+.btn-warning {
+  background-color: #f0ad4e;
+  color: white;
 }
+
+.btn-danger {
+  background-color: #dc3545;
+  color: white;
+}
+
+.btn-success {
+  background-color: #28a745;
+  color: white;
+}
+.btn-info:hover {
+  background-color: #138496;
+} 
+body {
+  background: url('/images/notebook-bg.png') no-repeat center center fixed;
+  background-size: cover;
+  font-family: 'Libre Baskerville', serif;
+  padding: 2rem;
+}
+
+h1, h2, .card-title {
+  font-family: 'Dancing Script', cursive;
+}
+
+.card.journal-card {
+  background-color: #fffef6;
+  border-radius: 12px;
+  padding: 1.5rem;
+  transition: transform 0.2s ease;
+}
+
+.card.journal-card:hover {
+  transform: scale(1.01);
+  box-shadow: 0 6px 20px rgba(0,0,0,0.1);
+}
+
+.card-text {
+  white-space: pre-wrap;
+  font-size: 1rem;
+  line-height: 1.5;
+}
+
+.btn {
+  font-weight: 500;
+  letter-spacing: 0.5px;
+}
+.btn:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+}
+.btn:active {
+  transform: translateY(0);
+  box-shadow: none;
+}
+.btn:focus {
+  outline: none;
+  box-shadow: 0 0 0 2px rgba(0,123,255,0.5);
+}         

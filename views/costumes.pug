@@ -1,0 +1,7 @@
+extends layout
+
+block content
+  h1= title
+  ul
+    each costume in results
+      li #{costume.costume_type} - Size: #{costume.size} - $#{costume.cost}

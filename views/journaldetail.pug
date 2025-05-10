@@ -1,0 +1,15 @@
+extends layout
+
+block content
+  h1.text-center.mb-4= title
+
+  .card.shadow
+    .card-body
+      h2.card-title= journal.title
+      h6.text-muted Author: #{journal.author}
+      p.mt-3= journal.content
+
+  .mt-4
+    a.btn.btn-warning(href=`/journals/${journal._id}/edit`) ✏️ update
+    a.btn.btn-danger.ms-2(href=`/journals/${journal._id}/delete`) 🗑️ Delete
+    a.btn.btn-secondary.ms-2(href="/journals/list") ← Back to List

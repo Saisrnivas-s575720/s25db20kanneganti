@@ -1,0 +1,40 @@
+extends layout
+
+block content
+  .container.mt-5
+    h1.text-center.mb-4= title
+
+    if !journal
+      .alert.alert-danger(role="alert")
+        h4.alert-heading Journal not found.
+        p Please check the URL or go back to the list.
+      a.btn.btn-secondary.mt-3(href="/journals/list") Back to List
+
+    else
+      // ✅ Flash messages
+      if success
+        .alert.alert-success(role="alert")= success
+      if error
+        .alert.alert-danger(role="alert")= error
+
+      // ✅ Journal Update Form
+      form(
+        action=`/journals/${journal._id}/update`,
+        method="POST",
+        class="p-4 border rounded-3 shadow-sm bg-light"
+      )
+        .mb-3
+          label.form-label(for="title") Title
+          input.form-control#title(type="text", name="title", required, value=journal.title)
+
+        .mb-3
+          label.form-label(for="author") Author
+          input.form-control#author(type="text", name="author", required, value=journal.author)
+
+        .mb-3
+          label.form-label(for="content") Content
+          textarea.form-control#content(name="content", rows="6") #{journal.content}
+
+        .d-flex.mt-4
+          button.btn.btn-primary(type="submit") Update Journal
+          a.btn.btn-outline-secondary.ms-3(href="/journals/list") Cancel

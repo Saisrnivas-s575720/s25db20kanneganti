@@ -1,20 +1,27 @@
 extends layout
 
 block content
-  h1 Search Results: Journals
+  h1.text-center.mb-4= title
 
-  -
-    var results = [
-      { title: "Journal of Astrophysics", field: "Astronomy", impactFactor: 8.2 },
-      { title: "Machine Learning Review", field: "Artificial Intelligence", impactFactor: 12.7 },
-      { title: "Global Climate Reports", field: "Environmental Science", impactFactor: 6.5 }
-    ];
+  a.btn.btn-success.mb-3(href="/journals/create") + New Journal
 
-  .container-fluid
-    .row
-    
-      each journal in results
-        .col-sm-2.bg-light.border.p-2.m-2.rounded
-          p Title: #{journal.title}
-          p Field: #{journal.field}
-          p Impact Factor: #{journal.impactFactor}
+  if results.length
+    table.table.table-striped
+      thead
+        tr
+          th Title
+          th Author
+          th Content
+          th Actions
+      tbody
+        each journal in results
+          tr
+            td= journal.title
+            td= journal.author
+            td= journal.content.length > 50 ? journal.content.substring(0, 50) + "..." : journal.content
+            td
+              a.btn.btn-sm.btn-primary(href=`/journals/detail?id=${journal._id}`) View
+              a.btn.btn-sm.btn-warning.ms-2(href=`/journals/${journal._id}/edit`) Edit
+              a.btn.btn-sm.btn-danger.ms-2(href=`/journals/${journal._id}/delete`) Delete
+  else
+    p.text-muted.text-center No journal entries found.

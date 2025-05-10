@@ -1,0 +1,23 @@
+extends layout
+
+block content
+  h1.mb-4.text-center Create Journal Entry
+
+  // 🔴 Flash/Error Alert for Validation
+  if error
+    .alert.alert-danger.alert-dismissible.fade.show(role="alert")
+      strong ⚠️ Validation Error:
+      | #{error}
+      button.btn-close(type="button", data-bs-dismiss="alert", aria-label="Close")
+
+  form(action="/journals/create", method="POST")
+    .mb-3
+      label(for="title") Title:
+      input.form-control(type="text", name="title", required)
+
+    .mb-3
+      label(for="content") Content:
+      textarea.form-control(name="content", rows="4", required)
+
+    button.btn.btn-success(type="submit") Create
+    a.btn.btn-secondary.ms-2(href="/journals") Cancel
